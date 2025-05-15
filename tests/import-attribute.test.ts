@@ -1,9 +1,10 @@
 import { execSync } from 'node:child_process'
 import path from 'node:path'
 import process from 'node:process'
+import { pathToFileURL } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
-const registerPath = path.resolve(process.cwd(), 'dist', 'register.js')
+const registerPath = pathToFileURL(path.resolve(process.cwd(), 'dist', 'register.js')).toString()
 const mainAppPath = path.resolve(process.cwd(), 'tests', 'fixtures', 'main-app.js')
 
 describe('glob imports with import attributes', () => {
