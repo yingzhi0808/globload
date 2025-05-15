@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.7
+
+[compare changes](https://github.com/yingzhi0808/globload/compare/v0.0.6...v0.0.7)
+
+### 🏡 Chore
+
+- Update release script ([d2c8602](https://github.com/yingzhi0808/globload/commit/d2c8602))
+
+### ❤️ Contributors
+
+- 纪颖志 ([@yingzhi0808](https://github.com/yingzhi0808))
+
 ## v0.0.6
 
 [compare changes](https://github.com/yingzhi0808/globload/compare/v0.0.5...v0.0.6)
