@@ -1,9 +1,9 @@
-name: Release
+name: Release Package
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
 
 jobs:
   release:
@@ -13,29 +13,30 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          registry-url: https://registry.npmjs.org
-          node-version: lts/*
+          node-version: 'lts/*'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
 
-      - name: Install pnpm
+      - name: Install pnpm and dependencies
         uses: pnpm/action-setup@v3
         with:
           run_install: true
 
-      - name: Build
+      - name: Build package
         run: pnpm build
 
-      - name: Publish to npm
-        run: pnpm publish --no-git-checks --provenance
-
-      - name: Generate Release Notes
-        run: pnpx changelogithub
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Publish to npm and create GitHub Release using release-it
+        run: |
+          pnpm release-it --ci \
+            --no-increment \
+            --github.release \
+            --npm.publish \
+            --npm.provenance
