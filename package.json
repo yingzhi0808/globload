@@ -94,9 +94,6 @@
     ]
   },
   "release-it": {
-    "github": {
-      "release": false
-    },
     "npm": {
       "publish": false
     }
