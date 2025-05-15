@@ -92,10 +92,5 @@
       "eslint --fix",
       "prettier --write --ignore-unknown"
     ]
-  },
-  "release-it": {
-    "npm": {
-      "publish": false
-    }
   }
 }
