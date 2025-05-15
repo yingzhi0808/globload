@@ -13,6 +13,7 @@ export default antfu(
       'ts/no-floating-promises': 'off',
       'ts/no-misused-promises': 'off',
       'eslint-comments/no-unlimited-disable': 'off',
+      'no-console': 'off',
     },
   },
   {

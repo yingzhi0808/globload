@@ -77,6 +77,12 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
     }
     resolvedImportAttributes.importerDir = importerBaseDir
 
+    console.log('specifier', specifier)
+    console.log('context', context)
+    console.log('globDetails', globDetails)
+    console.log('importerBaseDir', importerBaseDir)
+    console.log('absoluteGlobPattern', absoluteGlobPattern)
+
     return {
       shortCircuit: true,
       url: `${VIRTUAL_GLOB_PREFIX}${absoluteGlobPattern}`,
@@ -148,6 +154,10 @@ export const load: LoadHook = async (url, context, nextLoad) => {
       };
     `
 
+    console.log('absoluteGlobPattern', absoluteGlobPattern)
+    console.log('posixAbsoluteGlobPattern', posixAbsoluteGlobPattern)
+    console.log('files', files)
+    console.log('source', source)
     return {
       shortCircuit: true,
       format: 'module',
