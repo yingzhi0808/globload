@@ -1,0 +1,64 @@
+name: Release Package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          run_install: true
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Generate Release Notes
+        id: generate_release_notes
+        run: |
+          # 使用 npx 运行，无需全局或项目安装 conventional-changelog-cli (如果它不是 devDependency)
+          # -r 1 表示为最近的一个 tag 生成 changelog 内容
+          # --commit-path . 确保它在当前 checkout 的仓库上下文中运行
+          RELEASE_NOTES=$(npx conventional-changelog-cli -p angular -r 1 --commit-path .)
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: ${{ steps.generate_release_notes.outputs.notes }}
+          draft: false
+          prerelease: false
+
+      - name: Publish to npm
+        run: pnpm publish --no-git-checks --provenance
