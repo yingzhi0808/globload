@@ -1,5 +1,11 @@
 # Changelog
 
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+### [0.0.8](https://github.com/yingzhi0808/globload/compare/v0.0.7...v0.0.8) (2025-05-15)
+
+# Changelog
+
 
 ## v0.0.7
 
@@ -58,4 +64,3 @@
 ### ❤️ Contributors
 
 - 纪颖志 ([@yingzhi0808](https://github.com/yingzhi0808))
-
