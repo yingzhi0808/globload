@@ -40,7 +40,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 
 	for (const absoluteFilePath of files) {
 		const moduleFileUrl = pathToFileURL(absoluteFilePath).toString();
-		let relativePathKey = normalizePath(
+		const relativePathKey = normalizePath(
 			path.relative(process.cwd(), absoluteFilePath),
 		);
 
