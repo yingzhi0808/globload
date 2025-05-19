@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { compareNodeVersions } from "../src/utils.ts";
 
 const supportImportAttributes =
@@ -15,11 +15,23 @@ const registerUrl = pathToFileURL(
 ).href;
 
 describe("Glob Loader", () => {
-	afterAll(async () => {
-		await fs.writeFile(mainPath, "");
+	const defaultMainPath = path.resolve(process.cwd(), "tests/fixtures/main.js");
+	const parentSubMainPath = path.resolve(
+		process.cwd(),
+		"tests/fixtures/parent/sub/main.js",
+	);
+	let mainPath = defaultMainPath;
+
+	beforeEach(() => {
+		mainPath = defaultMainPath;
 	});
 
-	let mainPath = path.resolve(process.cwd(), "tests/fixtures/main.js");
+	afterAll(async () => {
+		await Promise.all([
+			fs.writeFile(defaultMainPath, ""),
+			fs.writeFile(parentSubMainPath, ""),
+		]);
+	});
 
 	it("should static import lazily with '?glob'", async () => {
 		const fileContent = `
@@ -137,7 +149,7 @@ describe("Glob Loader", () => {
 	);
 
 	it("should eagerly load parent ('../') modules with '?glob&eager'", async () => {
-		mainPath = path.resolve(process.cwd(), "tests/fixtures/parent/sub/main.js");
+		mainPath = parentSubMainPath;
 		const fileContent = `
 			import modules from "../*.js?glob&eager";
 			console.log(modules);
