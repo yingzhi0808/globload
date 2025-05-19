@@ -1,5 +1,9 @@
 name: Release
 
+permissions:
+  contents: write
+  id-token: write
+
 on:
   push:
     tags:
@@ -8,9 +12,6 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
 
     steps:
       - name: Checkout
@@ -24,9 +25,9 @@ jobs:
       - name: Set node
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: lts/*
           cache: pnpm
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: https://registry.npmjs.org
 
       - name: Install
         run: pnpm install
