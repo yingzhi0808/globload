@@ -132,4 +132,4 @@ Other mainstream bundlers like Rollup and Webpack also support using partial glo
 
 ## Compatibility
 
-- **Node.js**: Please refer to the `engines` field in `package.json` for specific declarations.
+- **Node.js**: Please refer to the [`engines`](https://github.com/yingzhi0808/globload/blob/main/package.json#L57) field in `package.json` for specific declarations.
