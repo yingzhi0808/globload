@@ -1,0 +1,16 @@
+{
+	"editor.codeActionsOnSave": {
+		"source.fixAll.biome": "explicit",
+		"source.organizeImports.biome": "never"
+	},
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "biomejs.biome",
+	"prettier.enable": false,
+	"eslint.enable": false,
+	"biome.enabled": true,
+	"biome.requireConfigFile": true,
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"[markdown]": {
+		"editor.defaultFormatter": "yzhang.markdown-all-in-one"
+	}
+}

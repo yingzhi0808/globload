@@ -1,0 +1,112 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Glob Loader > should dynamic import() eagerly with '?glob&eager' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': [Module: null prototype] {
+    default: 'electronics',
+    price: 1200,
+    productName: 'Laptop'
+  },
+  'tests/fixtures/basic/user.js': [Module: null prototype] {
+    default: { role: 'user' },
+    getAge: [Function: getAge],
+    name: 'Alice'
+  }
+}
+"
+`;
+
+exports[`Glob Loader > should dynamic import() lazily with '?glob' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': [Function: tests/fixtures/basic/product.js],
+  'tests/fixtures/basic/user.js': [Function: tests/fixtures/basic/user.js]
+}
+[Module: null prototype] {
+  default: 'electronics',
+  price: 1200,
+  productName: 'Laptop'
+}
+[Module: null prototype] {
+  default: { role: 'user' },
+  getAge: [Function: getAge],
+  name: 'Alice'
+}
+"
+`;
+
+exports[`Glob Loader > should eagerly load empty directory as empty object with '?glob&eager' 1`] = `
+"{}
+"
+`;
+
+exports[`Glob Loader > should eagerly load nested (**) modules with '?glob&eager' 1`] = `
+"{
+  'tests/fixtures/nested/data.js': [Module: null prototype] { a: 'a', b: 'b', c: 'c' },
+  'tests/fixtures/nested/deep/product.js': [Module: null prototype] {
+    default: 'electronics',
+    price: 1200,
+    productName: 'Laptop'
+  },
+  'tests/fixtures/nested/deep/user.js': [Module: null prototype] {
+    default: { role: 'user' },
+    getAge: [Function: getAge],
+    name: 'Alice'
+  }
+}
+"
+`;
+
+exports[`Glob Loader > should eagerly load non-existent path as empty object with '?glob&eager' 1`] = `
+"{}
+"
+`;
+
+exports[`Glob Loader > should eagerly load parent ('../') modules with '?glob&eager' 1`] = `
+"{
+  'tests/fixtures/parent/product.js': [Module: null prototype] {
+    default: 'electronics',
+    price: 1200,
+    productName: 'Laptop'
+  },
+  'tests/fixtures/parent/user.js': [Module: null prototype] {
+    default: { role: 'user' },
+    getAge: [Function: getAge],
+    name: 'Alice'
+  }
+}
+"
+`;
+
+exports[`Glob Loader > should static import eagerly with '?glob&eager' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': [Module: null prototype] {
+    default: 'electronics',
+    price: 1200,
+    productName: 'Laptop'
+  },
+  'tests/fixtures/basic/user.js': [Module: null prototype] {
+    default: { role: 'user' },
+    getAge: [Function: getAge],
+    name: 'Alice'
+  }
+}
+"
+`;
+
+exports[`Glob Loader > should static import lazily with '?glob' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': [Function: tests/fixtures/basic/product.js],
+  'tests/fixtures/basic/user.js': [Function: tests/fixtures/basic/user.js]
+}
+[Module: null prototype] {
+  default: 'electronics',
+  price: 1200,
+  productName: 'Laptop'
+}
+[Module: null prototype] {
+  default: { role: 'user' },
+  getAge: [Function: getAge],
+  name: 'Alice'
+}
+"
+`;

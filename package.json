@@ -1,0 +1,79 @@
+{
+	"name": "globload",
+	"type": "module",
+	"version": "0.1.6",
+	"packageManager": "pnpm@10.11.0",
+	"description": "A Node.js module loader for importing files using glob patterns.",
+	"author": "Yingzhi Ji <jiyingzhi0808@gmail.com>",
+	"license": "MIT",
+	"homepage": "https://github.com/yingzhi0808/globload",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/yingzhi0808/globload.git"
+	},
+	"bugs": {
+		"url": "https://github.com/yingzhi0808/globload/issues"
+	},
+	"keywords": [
+		"node",
+		"modules",
+		"loader",
+		"glob",
+		"import",
+		"glob-loader",
+		"glob-import",
+		"module-hooks",
+		"dynamic-import",
+		"batch-import",
+		"wildcard-import",
+		"pattern-import",
+		"module-loader",
+		"custom-loader",
+		"nodejs-loader",
+		"esm-loader",
+		"resolve-hook",
+		"load-hook"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/register.d.ts",
+			"import": "./dist/register.js",
+			"require": "./dist/register.js"
+		},
+		"./loader": {
+			"types": "./dist/loader.d.ts",
+			"import": "./dist/loader.js",
+			"require": "./dist/loader.js"
+		}
+	},
+	"main": "./dist/register.js",
+	"types": "./dist/register.d.ts",
+	"files": [
+		"LICENSE",
+		"README.md",
+		"dist"
+	],
+	"engines": {
+		"node": "^18.19.0 || >=20.10.0"
+	},
+	"scripts": {
+		"build": "tsdown",
+		"test": "pnpm build && vitest run",
+		"test:watch": "vitest",
+		"typecheck": "tsc --noEmit",
+		"check": "biome check --fix --no-errors-on-unmatched",
+		"preinstall": "npx only-allow pnpm",
+		"postinstall": "lefthook install"
+	},
+	"dependencies": {
+		"tinyglobby": "^0.2.13"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.0.0-beta.5",
+		"@types/node": "^22.15.19",
+		"lefthook": "^1.11.13",
+		"tsdown": "^0.11.12",
+		"typescript": "^5.8.3",
+		"vitest": "^3.1.4"
+	}
+}

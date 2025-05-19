@@ -1,0 +1,4 @@
+pre-commit:
+  jobs:
+    - run: pnpm check {staged_files}
+      stage_fixed: true
