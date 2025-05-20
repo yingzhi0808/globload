@@ -3,7 +3,7 @@
 	"type": "module",
 	"version": "1.0.0",
 	"packageManager": "pnpm@10.11.0",
-	"description": "A Node.js module loader for importing files using glob patterns.",
+	"description": "A Node.js module loader for importing files using glob patterns",
 	"author": "Yingzhi Ji <jiyingzhi0808@gmail.com>",
 	"license": "MIT",
 	"homepage": "https://github.com/yingzhi0808/globload",
