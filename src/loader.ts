@@ -66,7 +66,8 @@ export const load: LoadHook = async (url, context, nextLoad) => {
           `'${relativePathKey}': ${JSON.stringify(parsedContent)}`,
         );
       } else {
-        const physicalPath = fileURLToPath(moduleFileUrl);
+        const physicalPath = normalizePath(fileURLToPath(moduleFileUrl));
+
         let propertyValue: string;
         if (importKey && importKey !== "default") {
           propertyValue = `async () => { const c = await import('node:fs/promises').then(m => m.default.readFile('${physicalPath}', 'utf-8')); const p = await import('js-yaml').then(m => m.default.load(c)); return typeof p === 'object' && p !== null ? p['${importKey}'] : undefined; }`;
