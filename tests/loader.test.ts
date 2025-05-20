@@ -69,7 +69,7 @@ describe("Glob Loader", () => {
 				Object.values(modules.default).forEach(async (service) => {
 					console.log(await service());
 				});
-			});	
+			});
 		`;
     await fs.writeFile(mainPath, fileContent);
 
@@ -83,7 +83,7 @@ describe("Glob Loader", () => {
     const fileContent = `
 			import("./basic/*.js?glob&eager").then((modules) => {
 				console.log(modules.default);
-			});	
+			});
 		`;
     await fs.writeFile(mainPath, fileContent);
 
@@ -267,6 +267,133 @@ describe("Glob Loader", () => {
 				console.log(modules.default);
 			});
 		`;
+    await fs.writeFile(mainPath, fileContent);
+    const { stdout } = await exec(
+      `node --import="${registerUrl}" "${mainPath}"`,
+    );
+    expect(stdout.toString()).toMatchSnapshot();
+  });
+
+  // YAML import tests
+  it("should static import YAML lazily with '?glob'", async () => {
+    const fileContent = `
+      import modules from "./yaml/*.yaml?glob";
+      console.log(modules);
+      for (const key in modules) {
+        console.log(await modules[key]());
+      }
+    `;
+    await fs.writeFile(mainPath, fileContent);
+    const { stdout } = await exec(
+      `node --import="${registerUrl}" "${mainPath}"`,
+    );
+    expect(stdout.toString()).toMatchSnapshot();
+  });
+
+  it("should static import YAML eagerly with '?glob&eager'", async () => {
+    const fileContent = `
+      import modules from "./yaml/*.yaml?glob&eager";
+      console.log(modules);
+    `;
+    await fs.writeFile(mainPath, fileContent);
+    const { stdout } = await exec(
+      `node --import="${registerUrl}" "${mainPath}"`,
+    );
+    expect(stdout.toString()).toMatchSnapshot();
+  });
+
+  it("should static import YAML lazily with '?glob&import=name'", async () => {
+    const fileContent = `
+      import modules from "./yaml/*.yaml?glob&import=name";
+      console.log(modules);
+      for (const key in modules) {
+        console.log(await modules[key]());
+      }
+    `;
+    await fs.writeFile(mainPath, fileContent);
+    const { stdout } = await exec(
+      `node --import="${registerUrl}" "${mainPath}"`,
+    );
+    expect(stdout.toString()).toMatchSnapshot();
+  });
+
+  it("should static import YAML eagerly with '?glob&eager&import=role'", async () => {
+    const fileContent = `
+      // user.yaml has 'role', config.yaml does not, so config should be undefined for this key.
+      import modules from "./yaml/*.yaml?glob&eager&import=role";
+      console.log(modules);
+    `;
+    await fs.writeFile(mainPath, fileContent);
+    const { stdout } = await exec(
+      `node --import="${registerUrl}" "${mainPath}"`,
+    );
+    expect(stdout.toString()).toMatchSnapshot();
+  });
+
+  it("should static import YAML eagerly with '?glob&eager&import=default'", async () => {
+    const fileContent = `
+      import modules from "./yaml/*.yaml?glob&eager&import=default";
+      console.log(modules);
+    `;
+    await fs.writeFile(mainPath, fileContent);
+    const { stdout } = await exec(
+      `node --import="${registerUrl}" "${mainPath}"`,
+    );
+    expect(stdout.toString()).toMatchSnapshot();
+  });
+
+  // Dynamic imports for YAML
+  it("should dynamic import() YAML lazily with '?glob'", async () => {
+    const fileContent = `
+      import("./yaml/*.yaml?glob").then(async (modules) => {
+        console.log(modules.default);
+        for (const key in modules.default) {
+          console.log(await modules.default[key]());
+        }
+      });
+    `;
+    await fs.writeFile(mainPath, fileContent);
+    const { stdout } = await exec(
+      `node --import="${registerUrl}" "${mainPath}"`,
+    );
+    expect(stdout.toString()).toMatchSnapshot();
+  });
+
+  it("should dynamic import() YAML eagerly with '?glob&eager'", async () => {
+    const fileContent = `
+      import("./yaml/*.yaml?glob&eager").then((modules) => {
+        console.log(modules.default);
+      });
+    `;
+    await fs.writeFile(mainPath, fileContent);
+    const { stdout } = await exec(
+      `node --import="${registerUrl}" "${mainPath}"`,
+    );
+    expect(stdout.toString()).toMatchSnapshot();
+  });
+
+  it("should dynamic import() YAML lazily with '?glob&import=port'", async () => {
+    const fileContent = `
+      import("./yaml/*.yaml?glob&import=port").then(async (modules) => {
+        console.log(modules.default);
+        for (const key in modules.default) {
+          console.log(await modules.default[key]());
+        }
+      });
+    `;
+    await fs.writeFile(mainPath, fileContent);
+    const { stdout } = await exec(
+      `node --import="${registerUrl}" "${mainPath}"`,
+    );
+    expect(stdout.toString()).toMatchSnapshot();
+  });
+
+  it("should dynamic import() YAML eagerly with '?glob&eager&import=permissions'", async () => {
+    const fileContent = `
+      import("./yaml/*.yaml?glob&eager&import=permissions").then((modules) => {
+        console.log(modules.default);
+      });
+    `;
     await fs.writeFile(mainPath, fileContent);
     const { stdout } = await exec(
       `node --import="${registerUrl}" "${mainPath}"`,

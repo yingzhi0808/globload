@@ -1,0 +1,5 @@
+serviceName: my-app
+port: 8080
+features:
+  featureA: true
+  featureB: false
