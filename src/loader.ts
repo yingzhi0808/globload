@@ -26,6 +26,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 	);
 	const searchParams = absoluteUrl.searchParams;
 	const mode = searchParams.has("eager") ? "eager" : "lazy";
+	const importKey = searchParams.get("import");
 
 	const files = await glob(absoluteGlobPattern, {
 		absolute: true,
@@ -46,13 +47,29 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 
 		if (mode === "eager") {
 			const importName = `__globbed_eager_${importCounter++}`;
-			importStatements.push(
-				`import * as ${importName} from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`,
-			);
+			let importStatement: string;
+			if (importKey) {
+				if (importKey === "default") {
+					importStatement = `import { default as ${importName} } from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
+				} else {
+					importStatement = `import { ${importKey} as ${importName} } from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
+				}
+			} else {
+				importStatement = `import * as ${importName} from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
+			}
+			importStatements.push(importStatement);
 			properties.push(`'${relativePathKey}': ${importName}`);
 		} else {
+			let importAccess = "";
+			if (importKey) {
+				if (importKey === "default") {
+					importAccess = ".then(m => m.default)";
+				} else {
+					importAccess = `.then(m => m.${importKey})`;
+				}
+			}
 			properties.push(
-				`'${relativePathKey}': () => import('${moduleFileUrl}' ${hasImportAttributes ? `, { with: ${importAttributesJson} }` : ""})`,
+				`'${relativePathKey}': () => import('${moduleFileUrl}' ${hasImportAttributes ? `, { with: ${importAttributesJson} }` : ""})${importAccess}`,
 			);
 		}
 	}
