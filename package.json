@@ -62,8 +62,7 @@
 		"test:watch": "vitest",
 		"typecheck": "tsc --noEmit",
 		"check": "biome check --fix --no-errors-on-unmatched",
-		"preinstall": "npx only-allow pnpm",
-		"postinstall": "lefthook install"
+		"preinstall": "npx only-allow pnpm"
 	},
 	"dependencies": {
 		"tinyglobby": "^0.2.13"
