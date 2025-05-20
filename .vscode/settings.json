@@ -9,8 +9,5 @@
 	"eslint.enable": false,
 	"biome.enabled": true,
 	"biome.requireConfigFile": true,
-	"typescript.tsdk": "node_modules/typescript/lib",
-	"[markdown]": {
-		"editor.defaultFormatter": "yzhang.markdown-all-in-one"
-	}
+	"typescript.tsdk": "node_modules/typescript/lib"
 }
