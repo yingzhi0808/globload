@@ -1,6 +1,6 @@
 # globload
 
-This is a small yet powerful Node.js module loader that allows you to dynamically import multiple files using glob patterns.
+This is a small yet powerful Node.js module loader that allows you to dynamically import multiple files using glob patterns. It supports importing entire modules, specific named or default exports, and can directly parse and import YAML files as JavaScript objects.
 
 [![ci](https://github.com/yingzhi0808/globload/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/yingzhi0808/globload/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/globload.svg?style=flat-square)](https://www.npmjs.com/package/globload)
@@ -103,9 +103,9 @@ for (const pathKey in services) {
 }
 ```
 
-### Importing Specific Exports (New Feature!)
+### Importing Specific Exports
 
- `globload` allows you to import only specific named or default exports from the matched modules by using the `&import=` query parameter.
+`globload` allows you to import only specific named or default exports from the matched modules by using the `&import=` query parameter.
 
 **Syntax:**
 
@@ -153,6 +153,93 @@ for (const pathKey in serviceSetups) {
   }
 }
 ```
+
+### Importing YAML Files
+
+`globload` also supports importing `.yaml` and `.yml` files directly. When a glob pattern matches YAML files, `globload` will parse their content into JavaScript objects.
+
+**Example:**
+
+Assume you have YAML files in a `config/` directory:
+
+`config/database.yaml`:
+```yaml
+host: localhost
+port: 5432
+user: admin
+```
+
+`config/features.yaml`:
+```yaml
+logging: true
+betaAccess: false
+```
+
+**Lazy Loading YAML:**
+
+```typescript
+// src/app.js
+import configs from "./config/*.yaml?glob";
+
+// configs will be an object like this:
+// {
+//   'src/config/database.yaml': async () => { /* function that returns parsed database.yaml */ },
+//   'src/config/features.yaml': async () => { /* function that returns parsed features.yaml */ }
+// }
+
+async function loadConfigs() {
+  const dbConfig = await configs['src/config/database.yaml']();
+  console.log(dbConfig.host); // Output: localhost
+
+  const featureFlags = await configs['src/config/features.yaml']();
+  console.log(featureFlags.logging); // Output: true
+}
+loadConfigs();
+```
+
+**Eager Loading YAML:**
+
+```typescript
+// src/app.js
+import configs from "./config/*.yaml?glob&eager";
+
+// configs will be an object like this (YAML content is already parsed):
+// {
+//   'src/config/database.yaml': { host: 'localhost', port: 5432, user: 'admin' },
+//   'src/config/features.yaml': { logging: true, betaAccess: false }
+// }
+
+console.log(configs['src/config/database.yaml'].port); // Output: 5432
+```
+
+**Using `&import=` with YAML:**
+
+You can use the `&import=keyName` parameter to extract a specific top-level key from the parsed YAML object.
+
+```typescript
+// src/app.js
+// Get only the 'host' from database.yaml and 'logging' from features.yaml
+import dbHost from "./config/database.yaml?glob&eager&import=host";
+import loggingFlag from "./config/features.yaml?glob&eager&import=logging";
+
+// Note: When using &import with a glob that matches a single file,
+// the result 'dbHost' directly contains the value of 'host'.
+// If the glob matches multiple files, it would be an object similar to other glob imports.
+
+// For a single file match (simplified for clarity here, globload structure remains):
+// Assuming './config/database.yaml?glob&eager&import=host' effectively gives:
+// { 'src/config/database.yaml': 'localhost' }
+// Accessing it would be: const host = dbHost['src/config/database.yaml'];
+
+// A more typical usage with a glob matching one YAML for a specific key:
+import items from "./config/*.yaml?glob&eager&import=user";
+// items would be:
+// {
+//   'src/config/database.yaml': 'admin', // Assuming 'user' key exists
+// }
+
+```
+Using `&import=default` with YAML files behaves the same as not providing the `&import` parameter, returning the entire parsed object.
 
 ### Regarding Import Attributes
 

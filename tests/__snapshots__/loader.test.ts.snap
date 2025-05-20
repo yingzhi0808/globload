@@ -1,5 +1,59 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Glob Loader > should dynamic import() YAML eagerly with '?glob&eager&import=permissions' 1`] = `
+"{
+  'tests/fixtures/yaml/config.yaml': undefined,
+  'tests/fixtures/yaml/user.yaml': [ 'read', 'write' ]
+}
+"
+`;
+
+exports[`Glob Loader > should dynamic import() YAML eagerly with '?glob&eager' 1`] = `
+"{
+  'tests/fixtures/yaml/config.yaml': {
+    serviceName: 'my-app',
+    port: 8080,
+    features: { featureA: true, featureB: false }
+  },
+  'tests/fixtures/yaml/user.yaml': {
+    name: 'John Doe',
+    role: 'admin',
+    permissions: [ 'read', 'write' ],
+    details: { email: 'john.doe@example.com' }
+  }
+}
+"
+`;
+
+exports[`Glob Loader > should dynamic import() YAML lazily with '?glob&import=port' 1`] = `
+"{
+  'tests/fixtures/yaml/config.yaml': [AsyncFunction: tests/fixtures/yaml/config.yaml],
+  'tests/fixtures/yaml/user.yaml': [AsyncFunction: tests/fixtures/yaml/user.yaml]
+}
+8080
+undefined
+"
+`;
+
+exports[`Glob Loader > should dynamic import() YAML lazily with '?glob' 1`] = `
+"{
+  'tests/fixtures/yaml/config.yaml': [AsyncFunction: tests/fixtures/yaml/config.yaml],
+  'tests/fixtures/yaml/user.yaml': [AsyncFunction: tests/fixtures/yaml/user.yaml]
+}
+{
+  serviceName: 'my-app',
+  port: 8080,
+  features: { featureA: true, featureB: false }
+}
+{
+  name: 'John Doe',
+  role: 'admin',
+  permissions: [ 'read', 'write' ],
+  details: { email: 'john.doe@example.com' }
+}
+"
+`;
+
 exports[`Glob Loader > should dynamic import() eagerly with '?glob&eager&import=default' 1`] = `
 "{
   'tests/fixtures/basic/product.js': 'electronics',
@@ -70,6 +124,18 @@ exports[`Glob Loader > should dynamic import() lazily with '?glob' 1`] = `
 "
 `;
 
+exports[`Glob Loader > should eagerly load JSON modules with '?glob&eager' and import attributes 1`] = `
+"{
+  'tests/fixtures/json/product.json': [Module: null prototype] {
+    default: { id: 1, name: 'Laptop', price: 1200, category: 'electronics' }
+  },
+  'tests/fixtures/json/user.json': [Module: null prototype] {
+    default: { name: 'Alice', age: 30, role: 'user' }
+  }
+}
+"
+`;
+
 exports[`Glob Loader > should eagerly load empty directory as empty object with '?glob&eager' 1`] = `
 "{}
 "
@@ -109,6 +175,77 @@ exports[`Glob Loader > should eagerly load parent ('../') modules with '?glob&ea
     getAge: [Function: getAge],
     name: 'Alice'
   }
+}
+"
+`;
+
+exports[`Glob Loader > should static import YAML eagerly with '?glob&eager&import=default' 1`] = `
+"{
+  'tests/fixtures/yaml/config.yaml': {
+    serviceName: 'my-app',
+    port: 8080,
+    features: { featureA: true, featureB: false }
+  },
+  'tests/fixtures/yaml/user.yaml': {
+    name: 'John Doe',
+    role: 'admin',
+    permissions: [ 'read', 'write' ],
+    details: { email: 'john.doe@example.com' }
+  }
+}
+"
+`;
+
+exports[`Glob Loader > should static import YAML eagerly with '?glob&eager&import=role' 1`] = `
+"{
+  'tests/fixtures/yaml/config.yaml': undefined,
+  'tests/fixtures/yaml/user.yaml': 'admin'
+}
+"
+`;
+
+exports[`Glob Loader > should static import YAML eagerly with '?glob&eager' 1`] = `
+"{
+  'tests/fixtures/yaml/config.yaml': {
+    serviceName: 'my-app',
+    port: 8080,
+    features: { featureA: true, featureB: false }
+  },
+  'tests/fixtures/yaml/user.yaml': {
+    name: 'John Doe',
+    role: 'admin',
+    permissions: [ 'read', 'write' ],
+    details: { email: 'john.doe@example.com' }
+  }
+}
+"
+`;
+
+exports[`Glob Loader > should static import YAML lazily with '?glob&import=name' 1`] = `
+"{
+  'tests/fixtures/yaml/config.yaml': [AsyncFunction: tests/fixtures/yaml/config.yaml],
+  'tests/fixtures/yaml/user.yaml': [AsyncFunction: tests/fixtures/yaml/user.yaml]
+}
+undefined
+John Doe
+"
+`;
+
+exports[`Glob Loader > should static import YAML lazily with '?glob' 1`] = `
+"{
+  'tests/fixtures/yaml/config.yaml': [AsyncFunction: tests/fixtures/yaml/config.yaml],
+  'tests/fixtures/yaml/user.yaml': [AsyncFunction: tests/fixtures/yaml/user.yaml]
+}
+{
+  serviceName: 'my-app',
+  port: 8080,
+  features: { featureA: true, featureB: false }
+}
+{
+  name: 'John Doe',
+  role: 'admin',
+  permissions: [ 'read', 'write' ],
+  details: { email: 'john.doe@example.com' }
 }
 "
 `;
