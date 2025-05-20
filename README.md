@@ -2,7 +2,7 @@
 
 This is a small yet powerful Node.js module loader that allows you to dynamically import multiple files using glob patterns.
 
-[![Test](https://github.com/yingzhi0808/globload/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/yingzhi0808/globload/actions/workflows/test.yml)
+[![ci](https://github.com/yingzhi0808/globload/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/yingzhi0808/globload/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/globload.svg?style=flat-square)](https://www.npmjs.com/package/globload)
 [![npm downloads](https://img.shields.io/npm/dm/globload.svg?style=flat-square)](https://www.npmjs.com/package/globload)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
@@ -126,7 +126,7 @@ import serviceDefaults from "./services/*.js?glob&import=default";
 // }
 
 for (const pathKey in serviceDefaults) {
-	const defaultExportContent = await serviceDefaults[pathKey](); 
+	const defaultExportContent = await serviceDefaults[pathKey]();
 	// defaultExportContent is now the actual default export of the module
 	console.log(defaultExportContent);
 }
@@ -146,7 +146,7 @@ import serviceSetups from './services/*.js?glob&eager&import=setup';
 // }
 
 for (const pathKey in serviceSetups) {
-  const setupFunction = serviceSetups[pathKey]; 
+  const setupFunction = serviceSetups[pathKey];
   // setupFunction is now the actual 'setup' export from the module
   if (typeof setupFunction === 'function') {
     setupFunction();
