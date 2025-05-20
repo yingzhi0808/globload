@@ -1,11 +1,27 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Glob Loader > should dynamic import() eagerly with '?glob&eager&import=default' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': 'electronics',
+  'tests/fixtures/basic/user.js': { role: 'user' }
+}
+"
+`;
+
+exports[`Glob Loader > should dynamic import() eagerly with '?glob&eager&import=name' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': 'Laptop',
+  'tests/fixtures/basic/user.js': 'Alice'
+}
+"
+`;
+
 exports[`Glob Loader > should dynamic import() eagerly with '?glob&eager' 1`] = `
 "{
   'tests/fixtures/basic/product.js': [Module: null prototype] {
     default: 'electronics',
-    price: 1200,
-    productName: 'Laptop'
+    name: 'Laptop',
+    price: 1200
   },
   'tests/fixtures/basic/user.js': [Module: null prototype] {
     default: { role: 'user' },
@@ -16,6 +32,26 @@ exports[`Glob Loader > should dynamic import() eagerly with '?glob&eager' 1`] = 
 "
 `;
 
+exports[`Glob Loader > should dynamic import() lazily with '?glob&import=default' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': [Function: tests/fixtures/basic/product.js],
+  'tests/fixtures/basic/user.js': [Function: tests/fixtures/basic/user.js]
+}
+electronics
+{ role: 'user' }
+"
+`;
+
+exports[`Glob Loader > should dynamic import() lazily with '?glob&import=name' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': [Function: tests/fixtures/basic/product.js],
+  'tests/fixtures/basic/user.js': [Function: tests/fixtures/basic/user.js]
+}
+Laptop
+Alice
+"
+`;
+
 exports[`Glob Loader > should dynamic import() lazily with '?glob' 1`] = `
 "{
   'tests/fixtures/basic/product.js': [Function: tests/fixtures/basic/product.js],
@@ -23,8 +59,8 @@ exports[`Glob Loader > should dynamic import() lazily with '?glob' 1`] = `
 }
 [Module: null prototype] {
   default: 'electronics',
-  price: 1200,
-  productName: 'Laptop'
+  name: 'Laptop',
+  price: 1200
 }
 [Module: null prototype] {
   default: { role: 'user' },
@@ -77,12 +113,28 @@ exports[`Glob Loader > should eagerly load parent ('../') modules with '?glob&ea
 "
 `;
 
+exports[`Glob Loader > should static import eagerly with '?glob&eager&import=default' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': 'electronics',
+  'tests/fixtures/basic/user.js': { role: 'user' }
+}
+"
+`;
+
+exports[`Glob Loader > should static import eagerly with '?glob&eager&import=name' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': 'Laptop',
+  'tests/fixtures/basic/user.js': 'Alice'
+}
+"
+`;
+
 exports[`Glob Loader > should static import eagerly with '?glob&eager' 1`] = `
 "{
   'tests/fixtures/basic/product.js': [Module: null prototype] {
     default: 'electronics',
-    price: 1200,
-    productName: 'Laptop'
+    name: 'Laptop',
+    price: 1200
   },
   'tests/fixtures/basic/user.js': [Module: null prototype] {
     default: { role: 'user' },
@@ -93,6 +145,26 @@ exports[`Glob Loader > should static import eagerly with '?glob&eager' 1`] = `
 "
 `;
 
+exports[`Glob Loader > should static import lazily with '?glob&import=default' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': [Function: tests/fixtures/basic/product.js],
+  'tests/fixtures/basic/user.js': [Function: tests/fixtures/basic/user.js]
+}
+electronics
+{ role: 'user' }
+"
+`;
+
+exports[`Glob Loader > should static import lazily with '?glob&import=name' 1`] = `
+"{
+  'tests/fixtures/basic/product.js': [Function: tests/fixtures/basic/product.js],
+  'tests/fixtures/basic/user.js': [Function: tests/fixtures/basic/user.js]
+}
+Laptop
+Alice
+"
+`;
+
 exports[`Glob Loader > should static import lazily with '?glob' 1`] = `
 "{
   'tests/fixtures/basic/product.js': [Function: tests/fixtures/basic/product.js],
@@ -100,8 +172,8 @@ exports[`Glob Loader > should static import lazily with '?glob' 1`] = `
 }
 [Module: null prototype] {
   default: 'electronics',
-  price: 1200,
-  productName: 'Laptop'
+  name: 'Laptop',
+  price: 1200
 }
 [Module: null prototype] {
   default: { role: 'user' },

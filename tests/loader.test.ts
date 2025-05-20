@@ -161,4 +161,116 @@ describe("Glob Loader", () => {
 		);
 		expect(stdout.toString()).toMatchSnapshot();
 	});
+
+	it("should static import lazily with '?glob&import=default'", async () => {
+		const fileContent = `
+			import modules from "./basic/*.js?glob&import=default";
+			console.log(modules);
+			Object.values(modules).forEach(async (moduleDefaultExport) => {
+				console.log(await moduleDefaultExport());
+			});
+		`;
+		await fs.writeFile(mainPath, fileContent);
+		const { stdout } = await exec(
+			`node --import="${registerUrl}" "${mainPath}"`,
+		);
+		expect(stdout.toString()).toMatchSnapshot();
+	});
+
+	it("should static import eagerly with '?glob&eager&import=default'", async () => {
+		const fileContent = `
+			import modules from "./basic/*.js?glob&eager&import=default";
+			console.log(modules);
+		`;
+		await fs.writeFile(mainPath, fileContent);
+		const { stdout } = await exec(
+			`node --import="${registerUrl}" "${mainPath}"`,
+		);
+		expect(stdout.toString()).toMatchSnapshot();
+	});
+
+	it("should static import lazily with '?glob&import=name'", async () => {
+		const fileContent = `
+			import modules from "./basic/*.js?glob&import=name";
+			console.log(modules);
+			Object.values(modules).forEach(async (moduleNamedExport) => {
+				console.log(await moduleNamedExport());
+			});
+		`;
+		await fs.writeFile(mainPath, fileContent);
+		const { stdout } = await exec(
+			`node --import="${registerUrl}" "${mainPath}"`,
+		);
+		expect(stdout.toString()).toMatchSnapshot();
+	});
+
+	it("should static import eagerly with '?glob&eager&import=name'", async () => {
+		const fileContent = `
+			import modules from "./basic/*.js?glob&eager&import=name";
+			console.log(modules);
+		`;
+		await fs.writeFile(mainPath, fileContent);
+		const { stdout } = await exec(
+			`node --import="${registerUrl}" "${mainPath}"`,
+		);
+		expect(stdout.toString()).toMatchSnapshot();
+	});
+
+	it("should dynamic import() lazily with '?glob&import=default'", async () => {
+		const fileContent = `
+			import("./basic/*.js?glob&import=default").then((modules) => {
+				console.log(modules.default);
+				Object.values(modules.default).forEach(async (moduleDefaultExport) => {
+					console.log(await moduleDefaultExport());
+				});
+			});
+		`;
+		await fs.writeFile(mainPath, fileContent);
+		const { stdout } = await exec(
+			`node --import="${registerUrl}" "${mainPath}"`,
+		);
+		expect(stdout.toString()).toMatchSnapshot();
+	});
+
+	it("should dynamic import() eagerly with '?glob&eager&import=default'", async () => {
+		const fileContent = `
+			import("./basic/*.js?glob&eager&import=default").then((modules) => {
+				console.log(modules.default);
+			});
+		`;
+		await fs.writeFile(mainPath, fileContent);
+		const { stdout } = await exec(
+			`node --import="${registerUrl}" "${mainPath}"`,
+		);
+		expect(stdout.toString()).toMatchSnapshot();
+	});
+
+	it("should dynamic import() lazily with '?glob&import=name'", async () => {
+		const fileContent = `
+			import("./basic/*.js?glob&import=name").then((modules) => {
+				console.log(modules.default);
+				Object.values(modules.default).forEach(async (moduleNamedExport) => {
+					console.log(await moduleNamedExport());
+				});
+			});
+		`;
+		await fs.writeFile(mainPath, fileContent);
+		const { stdout } = await exec(
+			`node --import="${registerUrl}" "${mainPath}"`,
+		);
+		expect(stdout.toString()).toMatchSnapshot();
+	});
+
+	it("should dynamic import() eagerly with '?glob&eager&import=name'", async () => {
+		const fileContent = `
+			import("./basic/*.js?glob&eager&import=name").then((modules) => {
+				console.log(modules.default);
+			});
+		`;
+		await fs.writeFile(mainPath, fileContent);
+		const { stdout } = await exec(
+			`node --import="${registerUrl}" "${mainPath}"`,
+		);
+		expect(stdout.toString()).toMatchSnapshot();
+	});
 });
