@@ -1,13 +1,13 @@
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"type": "node",
-			"request": "launch",
-			"name": "globload",
-			"runtimeExecutable": "pnpm",
-			"runtimeArgs": ["dev"],
-			"skipFiles": ["<node_internals>/**", "**/node_modules/**"]
-		}
-	]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "globload",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    }
+  ]
 }

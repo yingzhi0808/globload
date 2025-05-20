@@ -1,6 +1,6 @@
 {
-	"id": 1,
-	"name": "Laptop",
-	"price": 1200,
-	"category": "electronics"
+  "id": 1,
+  "name": "Laptop",
+  "price": 1200,
+  "category": "electronics"
 }

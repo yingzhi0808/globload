@@ -5,76 +5,76 @@ import { glob } from "tinyglobby";
 import { createURL, normalizePath } from "./utils.ts";
 
 export const resolve: ResolveHook = (specifier, context, nextResolve) => {
-	const url = createURL(specifier, context.parentURL);
+  const url = createURL(specifier, context.parentURL);
 
-	if (!url?.searchParams.has("glob")) return nextResolve(specifier, context);
+  if (!url?.searchParams.has("glob")) return nextResolve(specifier, context);
 
-	return {
-		shortCircuit: true,
-		url: url.toString(),
-		importAttributes: context.importAttributes,
-	};
+  return {
+    shortCircuit: true,
+    url: url.toString(),
+    importAttributes: context.importAttributes,
+  };
 };
 
 export const load: LoadHook = async (url, context, nextLoad) => {
-	const absoluteUrl = createURL(url);
+  const absoluteUrl = createURL(url);
 
-	if (!absoluteUrl?.searchParams.has("glob")) return nextLoad(url, context);
+  if (!absoluteUrl?.searchParams.has("glob")) return nextLoad(url, context);
 
-	const absoluteGlobPattern = normalizePath(
-		fileURLToPath(absoluteUrl.toString()),
-	);
-	const searchParams = absoluteUrl.searchParams;
-	const mode = searchParams.has("eager") ? "eager" : "lazy";
-	const importKey = searchParams.get("import");
+  const absoluteGlobPattern = normalizePath(
+    fileURLToPath(absoluteUrl.toString()),
+  );
+  const searchParams = absoluteUrl.searchParams;
+  const mode = searchParams.has("eager") ? "eager" : "lazy";
+  const importKey = searchParams.get("import");
 
-	const files = await glob(absoluteGlobPattern, {
-		absolute: true,
-	});
+  const files = await glob(absoluteGlobPattern, {
+    absolute: true,
+  });
 
-	let importCounter = 0;
-	const importStatements: string[] = [];
-	const properties: string[] = [];
+  let importCounter = 0;
+  const importStatements: string[] = [];
+  const properties: string[] = [];
 
-	const importAttributesJson = JSON.stringify(context.importAttributes);
-	const hasImportAttributes = Object.keys(context.importAttributes).length > 0;
+  const importAttributesJson = JSON.stringify(context.importAttributes);
+  const hasImportAttributes = Object.keys(context.importAttributes).length > 0;
 
-	for (const absoluteFilePath of files) {
-		const moduleFileUrl = pathToFileURL(absoluteFilePath).toString();
-		const relativePathKey = normalizePath(
-			path.relative(process.cwd(), absoluteFilePath),
-		);
+  for (const absoluteFilePath of files) {
+    const moduleFileUrl = pathToFileURL(absoluteFilePath).toString();
+    const relativePathKey = normalizePath(
+      path.relative(process.cwd(), absoluteFilePath),
+    );
 
-		if (mode === "eager") {
-			const importName = `__globbed_eager_${importCounter++}`;
-			let importStatement: string;
-			if (importKey) {
-				if (importKey === "default") {
-					importStatement = `import { default as ${importName} } from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
-				} else {
-					importStatement = `import { ${importKey} as ${importName} } from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
-				}
-			} else {
-				importStatement = `import * as ${importName} from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
-			}
-			importStatements.push(importStatement);
-			properties.push(`'${relativePathKey}': ${importName}`);
-		} else {
-			let importAccess = "";
-			if (importKey) {
-				if (importKey === "default") {
-					importAccess = ".then(m => m.default)";
-				} else {
-					importAccess = `.then(m => m.${importKey})`;
-				}
-			}
-			properties.push(
-				`'${relativePathKey}': () => import('${moduleFileUrl}' ${hasImportAttributes ? `, { with: ${importAttributesJson} }` : ""})${importAccess}`,
-			);
-		}
-	}
+    if (mode === "eager") {
+      const importName = `__globbed_eager_${importCounter++}`;
+      let importStatement: string;
+      if (importKey) {
+        if (importKey === "default") {
+          importStatement = `import { default as ${importName} } from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
+        } else {
+          importStatement = `import { ${importKey} as ${importName} } from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
+        }
+      } else {
+        importStatement = `import * as ${importName} from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
+      }
+      importStatements.push(importStatement);
+      properties.push(`'${relativePathKey}': ${importName}`);
+    } else {
+      let importAccess = "";
+      if (importKey) {
+        if (importKey === "default") {
+          importAccess = ".then(m => m.default)";
+        } else {
+          importAccess = `.then(m => m.${importKey})`;
+        }
+      }
+      properties.push(
+        `'${relativePathKey}': () => import('${moduleFileUrl}' ${hasImportAttributes ? `, { with: ${importAttributesJson} }` : ""})${importAccess}`,
+      );
+    }
+  }
 
-	const source = `
+  const source = `
 // Dynamically generated by globload
 ${importStatements.join("\n")}
 
@@ -83,9 +83,9 @@ export default {
 };
 `;
 
-	return {
-		shortCircuit: true,
-		format: "module",
-		source,
-	};
+  return {
+    shortCircuit: true,
+    format: "module",
+    source,
+  };
 };
