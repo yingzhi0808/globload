@@ -37,9 +37,9 @@ describe("Glob Loader", () => {
     const fileContent = `
 			import modules from "./basic/*.js?glob";
 			console.log(modules);
-			Object.values(modules).forEach(async (module) => {
-				console.log(await module());
-			});
+			const promises = Object.values(modules).map(module => module());
+			const results = await Promise.all(promises);
+			results.forEach(result => console.log(result));
 		`;
     await fs.writeFile(mainPath, fileContent);
 
@@ -64,11 +64,11 @@ describe("Glob Loader", () => {
 
   it("should dynamic import() lazily with '?glob'", async () => {
     const fileContent = `
-			import("./basic/*.js?glob").then((modules) => {
+			import("./basic/*.js?glob").then(async (modules) => {
 				console.log(modules.default);
-				Object.values(modules.default).forEach(async (service) => {
-					console.log(await service());
-				});
+				const promises = Object.values(modules.default).map(service => service());
+				const results = await Promise.all(promises);
+				results.forEach(result => console.log(result));
 			});
 		`;
     await fs.writeFile(mainPath, fileContent);
@@ -166,9 +166,9 @@ describe("Glob Loader", () => {
     const fileContent = `
 			import modules from "./basic/*.js?glob&import=default";
 			console.log(modules);
-			Object.values(modules).forEach(async (moduleDefaultExport) => {
-				console.log(await moduleDefaultExport());
-			});
+			const promises = Object.values(modules).map(moduleDefaultExport => moduleDefaultExport());
+			const results = await Promise.all(promises);
+			results.forEach(result => console.log(result));
 		`;
     await fs.writeFile(mainPath, fileContent);
     const { stdout } = await exec(
@@ -193,9 +193,9 @@ describe("Glob Loader", () => {
     const fileContent = `
 			import modules from "./basic/*.js?glob&import=name";
 			console.log(modules);
-			Object.values(modules).forEach(async (moduleNamedExport) => {
-				console.log(await moduleNamedExport());
-			});
+			const promises = Object.values(modules).map(moduleNamedExport => moduleNamedExport());
+			const results = await Promise.all(promises);
+			results.forEach(result => console.log(result));
 		`;
     await fs.writeFile(mainPath, fileContent);
     const { stdout } = await exec(
@@ -218,11 +218,11 @@ describe("Glob Loader", () => {
 
   it("should dynamic import() lazily with '?glob&import=default'", async () => {
     const fileContent = `
-			import("./basic/*.js?glob&import=default").then((modules) => {
+			import("./basic/*.js?glob&import=default").then(async (modules) => {
 				console.log(modules.default);
-				Object.values(modules.default).forEach(async (moduleDefaultExport) => {
-					console.log(await moduleDefaultExport());
-				});
+				const promises = Object.values(modules.default).map(moduleDefaultExport => moduleDefaultExport());
+				const results = await Promise.all(promises);
+				results.forEach(result => console.log(result));
 			});
 		`;
     await fs.writeFile(mainPath, fileContent);
@@ -247,11 +247,11 @@ describe("Glob Loader", () => {
 
   it("should dynamic import() lazily with '?glob&import=name'", async () => {
     const fileContent = `
-			import("./basic/*.js?glob&import=name").then((modules) => {
+			import("./basic/*.js?glob&import=name").then(async (modules) => {
 				console.log(modules.default);
-				Object.values(modules.default).forEach(async (moduleNamedExport) => {
-					console.log(await moduleNamedExport());
-				});
+				const promises = Object.values(modules.default).map(moduleNamedExport => moduleNamedExport());
+				const results = await Promise.all(promises);
+				results.forEach(result => console.log(result));
 			});
 		`;
     await fs.writeFile(mainPath, fileContent);
@@ -279,9 +279,9 @@ describe("Glob Loader", () => {
     const fileContent = `
       import modules from "./yaml/*.yaml?glob";
       console.log(modules);
-      for (const key in modules) {
-        console.log(await modules[key]());
-      }
+      const promises = Object.keys(modules).map(key => modules[key]());
+      const results = await Promise.all(promises);
+      results.forEach(result => console.log(result));
     `;
     await fs.writeFile(mainPath, fileContent);
     const { stdout } = await exec(
@@ -306,9 +306,9 @@ describe("Glob Loader", () => {
     const fileContent = `
       import modules from "./yaml/*.yaml?glob&import=name";
       console.log(modules);
-      for (const key in modules) {
-        console.log(await modules[key]());
-      }
+      const promises = Object.keys(modules).map(key => modules[key]());
+      const results = await Promise.all(promises);
+      results.forEach(result => console.log(result));
     `;
     await fs.writeFile(mainPath, fileContent);
     const { stdout } = await exec(
@@ -347,9 +347,9 @@ describe("Glob Loader", () => {
     const fileContent = `
       import("./yaml/*.yaml?glob").then(async (modules) => {
         console.log(modules.default);
-        for (const key in modules.default) {
-          console.log(await modules.default[key]());
-        }
+        const promises = Object.keys(modules.default).map(key => modules.default[key]());
+        const results = await Promise.all(promises);
+        results.forEach(result => console.log(result));
       });
     `;
     await fs.writeFile(mainPath, fileContent);
@@ -376,9 +376,9 @@ describe("Glob Loader", () => {
     const fileContent = `
       import("./yaml/*.yaml?glob&import=port").then(async (modules) => {
         console.log(modules.default);
-        for (const key in modules.default) {
-          console.log(await modules.default[key]());
-        }
+        const promises = Object.keys(modules.default).map(key => modules.default[key]());
+        const results = await Promise.all(promises);
+        results.forEach(result => console.log(result));
       });
     `;
     await fs.writeFile(mainPath, fileContent);
