@@ -43,7 +43,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 
   for (const absoluteFilePath of files) {
     const fileExtension = path.extname(absoluteFilePath).toLowerCase();
-    const isYaml = fileExtension === ".yaml" || fileExtension === ".yml";
+    const isYaml = [".yaml", ".yml"].includes(fileExtension);
 
     const moduleFileUrl = pathToFileURL(absoluteFilePath).toString();
     const relativePathKey = normalizePath(
@@ -70,9 +70,9 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 
         let propertyValue: string;
         if (importKey && importKey !== "default") {
-          propertyValue = `async () => { const c = await import('node:fs/promises').then(m => m.default.readFile('${physicalPath}', 'utf-8')); const p = await import('js-yaml').then(m => m.default.load(c)); return typeof p === 'object' && p !== null ? p['${importKey}'] : undefined; }`;
+          propertyValue = `async () => { const c = await import('node:fs/promises').then(({ readFile }) => readFile('${physicalPath}', 'utf-8')); const p = await import('js-yaml').then(({ load }) => load(c)); return typeof p === 'object' && p !== null ? p['${importKey}'] : undefined; }`;
         } else {
-          propertyValue = `async () => { const c = await import('node:fs/promises').then(m => m.default.readFile('${physicalPath}', 'utf-8')); return await import('js-yaml').then(m => m.default.load(c)); }`;
+          propertyValue = `async () => { const c = await import('node:fs/promises').then(({ readFile }) => readFile('${physicalPath}', 'utf-8')); return await import('js-yaml').then(({ load }) => load(c)); }`;
         }
         properties.push(`'${relativePathKey}': ${propertyValue}`);
       }
