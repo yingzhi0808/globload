@@ -35,6 +35,7 @@
     }
   },
   "main": "./dist/register.js",
+  "module": "./dist/register.js",
   "types": "./dist/register.d.ts",
   "files": [
     "LICENSE",
