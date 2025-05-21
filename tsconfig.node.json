@@ -5,5 +5,5 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "isolatedDeclarations": false
   },
-  "include": ["*.config.ts", "tsdown.config.ts"]
+  "include": ["*.config.ts"]
 }
