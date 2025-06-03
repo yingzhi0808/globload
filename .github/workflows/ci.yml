@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - '**'
-    tags:
-      - '!**'
   pull_request:
     branches:
       - main
@@ -44,7 +42,7 @@ jobs:
         if: runner.os == 'Linux' && matrix.node_version == 'latest'
 
       - name: Type Check
-        run: pnpm check:type
+        run: pnpm typecheck
         if: runner.os == 'Linux' && matrix.node_version == 'latest'
 
       - name: Test
