@@ -1,0 +1,7 @@
+name: John Doe
+role: admin
+permissions:
+  - read
+  - write
+details:
+  email: john.doe@example.com

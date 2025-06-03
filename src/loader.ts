@@ -1,6 +1,8 @@
+import fs from "node:fs/promises";
 import type { LoadHook, ResolveHook } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import yaml from "js-yaml";
 import { glob } from "tinyglobby";
 import { createURL, normalizePath } from "./utils.ts";
 
@@ -40,37 +42,68 @@ export const load: LoadHook = async (url, context, nextLoad) => {
   const hasImportAttributes = Object.keys(context.importAttributes).length > 0;
 
   for (const absoluteFilePath of files) {
+    const fileExtension = path.extname(absoluteFilePath).toLowerCase();
+    const isYaml = [".yaml", ".yml"].includes(fileExtension);
+
     const moduleFileUrl = pathToFileURL(absoluteFilePath).toString();
     const relativePathKey = normalizePath(
       path.relative(process.cwd(), absoluteFilePath),
     );
 
-    if (mode === "eager") {
-      const importName = `__globbed_eager_${importCounter++}`;
-      let importStatement: string;
-      if (importKey) {
-        if (importKey === "default") {
-          importStatement = `import { default as ${importName} } from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
-        } else {
-          importStatement = `import { ${importKey} as ${importName} } from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
+    if (isYaml) {
+      if (mode === "eager") {
+        const fileContent = await fs.readFile(absoluteFilePath, "utf-8");
+        let parsedContent = yaml.load(fileContent);
+        if (
+          importKey &&
+          importKey !== "default" &&
+          typeof parsedContent === "object" &&
+          parsedContent !== null
+        ) {
+          parsedContent = (parsedContent as Record<string, unknown>)[importKey];
         }
+        properties.push(
+          `'${relativePathKey}': ${JSON.stringify(parsedContent)}`,
+        );
       } else {
-        importStatement = `import * as ${importName} from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
-      }
-      importStatements.push(importStatement);
-      properties.push(`'${relativePathKey}': ${importName}`);
-    } else {
-      let importAccess = "";
-      if (importKey) {
-        if (importKey === "default") {
-          importAccess = ".then(m => m.default)";
+        const physicalPath = normalizePath(fileURLToPath(moduleFileUrl));
+
+        let propertyValue: string;
+        if (importKey && importKey !== "default") {
+          propertyValue = `async () => { const c = await import('node:fs/promises').then(({ readFile }) => readFile('${physicalPath}', 'utf-8')); const p = await import('js-yaml').then(({ load }) => load(c)); return typeof p === 'object' && p !== null ? p['${importKey}'] : undefined; }`;
         } else {
-          importAccess = `.then(m => m.${importKey})`;
+          propertyValue = `async () => { const c = await import('node:fs/promises').then(({ readFile }) => readFile('${physicalPath}', 'utf-8')); return await import('js-yaml').then(({ load }) => load(c)); }`;
         }
+        properties.push(`'${relativePathKey}': ${propertyValue}`);
       }
-      properties.push(
-        `'${relativePathKey}': () => import('${moduleFileUrl}' ${hasImportAttributes ? `, { with: ${importAttributesJson} }` : ""})${importAccess}`,
-      );
+    } else {
+      if (mode === "eager") {
+        const importName = `__globbed_eager_${importCounter++}`;
+        let importStatement: string;
+        if (importKey) {
+          if (importKey === "default") {
+            importStatement = `import { default as ${importName} } from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
+          } else {
+            importStatement = `import { ${importKey} as ${importName} } from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
+          }
+        } else {
+          importStatement = `import * as ${importName} from '${moduleFileUrl}' ${hasImportAttributes ? `with ${importAttributesJson}` : ""};`;
+        }
+        importStatements.push(importStatement);
+        properties.push(`'${relativePathKey}': ${importName}`);
+      } else {
+        let importAccess = "";
+        if (importKey) {
+          if (importKey === "default") {
+            importAccess = ".then(m => m.default)";
+          } else {
+            importAccess = `.then(m => m.${importKey})`;
+          }
+        }
+        properties.push(
+          `'${relativePathKey}': () => import('${moduleFileUrl}' ${hasImportAttributes ? `, { with: ${importAttributesJson} }` : ""})${importAccess}`,
+        );
+      }
     }
   }
 
