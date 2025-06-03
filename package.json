@@ -1,7 +1,7 @@
 {
   "name": "globload",
   "type": "module",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "packageManager": "pnpm@10.11.1",
   "description": "A Node.js module loader for importing files using glob patterns, supporting specific exports and YAML parsing.",
   "author": "Yingzhi Ji <jiyingzhi0808@gmail.com>",
