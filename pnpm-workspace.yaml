@@ -2,4 +2,3 @@ ignoredBuiltDependencies:
   - esbuild
 onlyBuiltDependencies:
   - lefthook
-useNodeVersion: 18.19.0
