@@ -24,19 +24,14 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/register.d.ts",
-      "import": "./dist/register.js",
-      "require": "./dist/register.js"
+      "types": "./dist/register.d.mts",
+      "import": "./dist/register.mjs"
     },
     "./loader": {
-      "types": "./dist/loader.d.ts",
-      "import": "./dist/loader.js",
-      "require": "./dist/loader.js"
+      "types": "./dist/loader.d.mts",
+      "import": "./dist/loader.mjs"
     }
   },
-  "main": "./dist/register.js",
-  "module": "./dist/register.js",
-  "types": "./dist/register.d.ts",
   "files": [
     "LICENSE",
     "README.md",
@@ -58,7 +53,6 @@
     "pretest": "pnpm build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
     "check": "run-p check:*",
     "check:type": "tsc --noEmit",
     "check:biome": "biome check --fix --no-errors-on-unmatched",
@@ -78,5 +72,8 @@
     "tsdown": "^0.18.4",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
