@@ -11,7 +11,7 @@ const supportImportAttributes =
 
 const exec = promisify(child_process.exec);
 const registerUrl = pathToFileURL(
-  path.resolve(process.cwd(), "dist/register.js"),
+  path.resolve(process.cwd(), "dist/register.mjs"),
 ).href;
 
 describe("Glob Loader", () => {
