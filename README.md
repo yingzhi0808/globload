@@ -215,4 +215,5 @@ So `globload` is a better fit for pure Node.js backend projects, scripts, or any
 
 - **Node.js**: see the `engines.node` field in `package.json` (currently `^18.19.0 || >=20.10.0`).
 
+Issues and PRs are welcome.
 
