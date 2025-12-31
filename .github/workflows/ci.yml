@@ -11,6 +11,7 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    if: "!contains(github.event.head_commit.message, 'chore: release')"
 
     strategy:
       matrix:
@@ -25,7 +26,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup node ${{ matrix.node_version }}
+      - name: Setup Node ${{ matrix.node_version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node_version }}
@@ -41,11 +42,11 @@ jobs:
         run: biome ci .
         if: runner.os == 'Linux' && matrix.node_version == 'latest'
 
-      - name: Type Check
-        run: pnpm typecheck
+      - name: Type check
+        run: pnpm check:type
         if: runner.os == 'Linux' && matrix.node_version == 'latest'
 
-      - name: Test
+      - name: Run tests
         run: pnpm test
 
       - name: Build
