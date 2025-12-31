@@ -1,24 +1,30 @@
 # globload
 
-This is a small yet powerful Node.js module loader that allows you to dynamically import multiple files using glob patterns. It supports importing entire modules, specific named or default exports, and can directly parse and import YAML files as JavaScript objects.
+English | [简体中文](./README.zh-CN.md)
+
+A small but powerful Node.js module loader: import multiple files at once using **glob patterns**. It supports:
+
+- Bulk importing modules by file pattern (resolved at runtime, no bundler required)
+- Lazy loading (default) and eager loading
+- Importing only a specific named export or the default export (`&import=`)
+- Importing and parsing YAML directly (`.yaml` / `.yml`)
 
 [![ci](https://github.com/yingzhi0808/globload/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/yingzhi0808/globload/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/globload.svg?style=flat-square)](https://www.npmjs.com/package/globload)
 [![npm downloads](https://img.shields.io/npm/dm/globload.svg?style=flat-square)](https://www.npmjs.com/package/globload)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-## Features
+## Features & use cases
 
-In Node.js projects, you sometimes need to import all modules within a directory (e.g., a series of services, plugins, or configuration files). Manually writing `import` statements for each file is tedious and error-prone, especially when files change frequently.
+In Node.js projects, you often want to import all modules under a directory (e.g. services/plugins/routes/configs). Writing a bunch of `import` statements by hand is tedious and easy to miss.
 
-`globload` solves this problem by providing a concise glob syntax, allowing you to:
+`globload` intercepts imports with the `?glob` query at runtime via **Node.js module hooks**, and expands them into “the aggregated results of importing multiple modules”, so you get:
 
-- **Dynamic Import**: Import modules based on file pattern matching.
-- **Stay Clean**: Reduce redundant import statements.
-- **Flexible Control**: Supports lazy loading and eager loading.
-- **No Build Tools Needed**: Unlike similar features provided by some bundlers, `globload` works directly in the Node.js runtime via module hooks, requiring no extra build steps.
+- Less repetitive imports
+- No need to maintain an import list when files are added/removed
+- No need for build tools like Vite/Rollup/Webpack, and no extra compilation step
 
-## Installation
+## Install
 
 ```bash
 # pnpm
@@ -31,19 +37,22 @@ npm install globload
 yarn add globload
 ```
 
-## How to Use
+## Quick start
 
-`globload` utilizes Node.js module hooks. To enable it, you need to preload `globload`'s registration script via the `--import` flag when starting your Node.js application.
+`globload` needs to register its hook script at Node startup. The recommended way is using `--import`:
 
 ```bash
 node --import globload your-app.js
 ```
 
-### Import Syntax Examples
+Then, simply append `?glob` to an import path to trigger expansion.
 
-To use `globload`, you need to append the `?glob` query parameter to the end of your import path string. This will instruct `globload` to process the import.
+> Note: “import” here includes both **static imports** (`import ... from "..."`) and **dynamic imports** (`import("...")`).
+> In other words, as long as the path includes `?glob`, `globload` will expand it no matter which style you use.
 
-Assume your project structure is as follows:
+## Import syntax
+
+Assume your project structure looks like this:
 
 ```
 your-project/
@@ -55,220 +64,155 @@ your-project/
 └── package.json
 ```
 
-#### Lazy Loading (Default)
+### Lazy loading (default)
 
-When only `?glob` is used, modules are imported lazily. This means `globload` exports an object where the values are functions that return dynamic `import()` calls.
+With only `?glob`, the import is lazy: `globload` exports an object whose values are functions; calling a function triggers the actual `import()`.
 
-```typescript
+```ts
 // src/app.js
 import services from "./services/*.js?glob";
 
-// services will be an object like this:
+// services is like:
 // {
-//   'src/services/product.js': () => import('file:///path/to/your-project/src/services/product.js'),
-//   'src/services/user.js': () => import('file:///path/to/your-project/src/services/user.js')
+//   'src/services/product.js': () => import('file:///.../src/services/product.js'),
+//   'src/services/user.js': () => import('file:///.../src/services/user.js')
 // }
-// Note: Keys are paths relative to process.cwd().
+// Note: keys are paths relative to process.cwd()
 
 for (const pathKey in services) {
-	const service = await services[pathKey](); // Call the function to load the module
-	// Assuming user.js exports a function named 'getUser'
-	if (service.getUser) {
-	  console.log('Module content (getUser):', service.getUser());
-	}
+  const mod = await services[pathKey]();
+  if (mod.getUser) console.log(mod.getUser());
 }
 ```
 
-#### Eager Loading
+The same rule applies to dynamic `import()` (note that dynamic import returns a module namespace object; you need to read `default` from it):
 
-To eagerly load modules (i.e., load all matching modules immediately), append the `eager` parameter after `?glob` (e.g., `?glob&eager`).
-
-```typescript
+```ts
 // src/app.js
-import services from './services/*.js?glob&eager';
-
-// services will be an object like this (modules are already loaded):
-// {
-//   'src/services/product.js': { /* product exports */ },
-//   'src/services/user.js': { /* user exports */ }
-// }
-// Note: Keys are paths relative to process.cwd().
+const { default: services } = await import("./services/*.js?glob");
 
 for (const pathKey in services) {
-  const service = services[pathKey]; // Module is already loaded, access directly
-  // Assuming user.js exports a function named 'getUser'
-  if (service.getUser) {
-    console.log('Module content (getUser):', service.getUser());
-  }
+  const mod = await services[pathKey]();
+  if (mod.getUser) console.log(mod.getUser());
 }
 ```
 
-### Importing Specific Exports
+### Eager loading
 
-`globload` allows you to import only specific named or default exports from the matched modules by using the `&import=` query parameter.
+Append `&eager` after `?glob` to import all matched modules immediately:
 
-**Syntax:**
-
-- `?glob&import=default`: Imports the default export from each module.
-- `?glob&import=namedExport`: Imports the export named `namedExport` from each module.
-
-**Lazy Loading with `&import=default`:**
-
-```typescript
+```ts
 // src/app.js
-// Assuming each service file has a default export
-import serviceDefaults from "./services/*.js?glob&import=default";
+import services from "./services/*.js?glob&eager";
 
-// serviceDefaults will be an object like this:
+// services is like:
 // {
-//   'src/services/product.js': () => import('file:///path/to/your-project/src/services/product.js').then(m => m.default),
-//   'src/services/user.js': () => import('file:///path/to/your-project/src/services/user.js').then(m => m.default)
+//   'src/services/product.js': { ...exports },
+//   'src/services/user.js': { ...exports }
 // }
 
-for (const pathKey in serviceDefaults) {
-	const defaultExportContent = await serviceDefaults[pathKey]();
-	// defaultExportContent is now the actual default export of the module
-	console.log(defaultExportContent);
+for (const pathKey in services) {
+  const mod = services[pathKey];
+  if (mod.getUser) console.log(mod.getUser());
 }
 ```
 
-**Eager Loading with `&import=setup` (a named export):**
+### Import only specific exports (`&import=`)
 
-```typescript
-// src/app.js
-// Assuming each service file has a named export 'setup'
-import serviceSetups from './services/*.js?glob&eager&import=setup';
+Use `&import=` to select either the default export or a specific named export:
 
-// serviceSetups will be an object like this:
-// {
-//   'src/services/product.js': /* content of product.js's 'setup' export */,
-//   'src/services/user.js': /* content of user.js's 'setup' export */
-// }
+- `?glob&import=default`: take the default export from each module
+- `?glob&import=setup`: take the `setup` named export from each module
 
-for (const pathKey in serviceSetups) {
-  const setupFunction = serviceSetups[pathKey];
-  // setupFunction is now the actual 'setup' export from the module
-  if (typeof setupFunction === 'function') {
-    setupFunction();
-  }
+Lazy + default export:
+
+```ts
+import defaults from "./services/*.js?glob&import=default";
+
+for (const pathKey in defaults) {
+  const d = await defaults[pathKey](); // returns the default export
+  console.log(d);
 }
 ```
 
-### Importing YAML Files
+Eager + named export:
 
-`globload` also supports importing `.yaml` and `.yml` files directly. When a glob pattern matches YAML files, `globload` will parse their content into JavaScript objects.
+```ts
+import setups from "./services/*.js?glob&eager&import=setup";
 
-**Example:**
-
-Assume you have YAML files in a `config/` directory:
-
-`config/database.yaml`:
-```yaml
-host: localhost
-port: 5432
-user: admin
+for (const pathKey in setups) {
+  const setup = setups[pathKey]; // the setup export itself
+  if (typeof setup === "function") setup();
+}
 ```
 
-`config/features.yaml`:
-```yaml
-logging: true
-betaAccess: false
-```
+## Import YAML directly (.yaml / .yml)
 
-**Lazy Loading YAML:**
+When a matched file is YAML, `globload` parses its content into a JavaScript object.
 
-```typescript
-// src/app.js
+Lazy YAML:
+
+```ts
 import configs from "./config/*.yaml?glob";
 
-// configs will be an object like this:
-// {
-//   'src/config/database.yaml': async () => { /* function that returns parsed database.yaml */ },
-//   'src/config/features.yaml': async () => { /* function that returns parsed features.yaml */ }
-// }
-
-async function loadConfigs() {
-  const dbConfig = await configs['src/config/database.yaml']();
-  console.log(dbConfig.host); // Output: localhost
-
-  const featureFlags = await configs['src/config/features.yaml']();
-  console.log(featureFlags.logging); // Output: true
-}
-loadConfigs();
+const db = await configs["src/config/database.yaml"]();
+console.log(db.host);
 ```
 
-**Eager Loading YAML:**
+Eager YAML:
 
-```typescript
-// src/app.js
+```ts
 import configs from "./config/*.yaml?glob&eager";
 
-// configs will be an object like this (YAML content is already parsed):
-// {
-//   'src/config/database.yaml': { host: 'localhost', port: 5432, user: 'admin' },
-//   'src/config/features.yaml': { logging: true, betaAccess: false }
-// }
-
-console.log(configs['src/config/database.yaml'].port); // Output: 5432
+console.log(configs["src/config/database.yaml"].port);
 ```
 
-**Using `&import=` with YAML:**
+Use `&import=` to read a top-level YAML key:
 
-You can use the `&import=keyName` parameter to extract a specific top-level key from the parsed YAML object.
-
-```typescript
-// src/app.js
-// Get only the 'host' from database.yaml and 'logging' from features.yaml
-import dbHost from "./config/database.yaml?glob&eager&import=host";
-import loggingFlag from "./config/features.yaml?glob&eager&import=logging";
-
-// Note: When using &import with a glob that matches a single file,
-// the result 'dbHost' directly contains the value of 'host'.
-// If the glob matches multiple files, it would be an object similar to other glob imports.
-
-// For a single file match (simplified for clarity here, globload structure remains):
-// Assuming './config/database.yaml?glob&eager&import=host' effectively gives:
-// { 'src/config/database.yaml': 'localhost' }
-// Accessing it would be: const host = dbHost['src/config/database.yaml'];
-
-// A more typical usage with a glob matching one YAML for a specific key:
+```ts
 import items from "./config/*.yaml?glob&eager&import=user";
-// items would be:
-// {
-//   'src/config/database.yaml': 'admin', // Assuming 'user' key exists
-// }
-
-```
-Using `&import=default` with YAML files behaves the same as not providing the `&import` parameter, returning the entire parsed object.
-
-### Regarding Import Attributes
-
-If you use `import attributes` (e.g., `with { type: "json" }`) in your `globload` import statement, these attributes will be passed to each individual dynamic import generated by `globload`. This is useful for importing module types that require specific import attributes, such as JSON modules.
-
-```typescript
-// Assuming you have a data directory containing multiple JSON files
-// src/app.js
-import data from './data/*.json?glob&eager' with { type: 'json' };
-
-// data will be an object where each JSON file is already loaded as a module
-// {
-//   'src/data/config.json': { default: { /* parsed JSON content */ } },
-//   'src/data/userPreferences.json': { default: { /* parsed JSON content */ } }
-// }
+// items looks like:
+// { 'src/config/database.yaml': 'admin' }
 ```
 
-### Advanced Path Matching
+For YAML, `&import=default` is equivalent to omitting `&import`, i.e. returning the whole parsed object.
 
-This library uses [tinyglobby](https://github.com/SuperchupuDev/tinyglobby) internally to parse and match glob patterns. `tinyglobby` supports common glob patterns.
+## About import attributes (`with { ... }`)
 
-## Differences from Bundlers
+If you use import attributes in a `globload` import statement (e.g. `with { type: "json" }` for JSON modules), those attributes are forwarded to every dynamic `import()` generated by `globload`.
 
-The functionality provided by `globload` is similar to features in some modern frontend bundlers.
+```ts
+import data from "./data/*.json?glob&eager" with { type: "json" };
+```
 
-For example, [Vite](https://vitejs.dev/)'s `import.meta.glob` feature allows importing multiple modules using glob patterns. However, `import.meta.glob` is a **compile-time** feature that relies on Vite's build process to analyze and transform code. In contrast, `globload` dynamically resolves and loads modules at **runtime** via Node.js module loader hooks, **without needing any build or bundling tools**. This makes `globload` well-suited for pure Node.js backend projects, scripts, or any scenario where you don't want to introduce a complex build process.
+After expansion, it’s roughly equivalent to the following (illustrative; path resolution details omitted). The key point is **the attributes appear on every dynamic import**:
 
-Other mainstream bundlers like Rollup and Webpack also support using partial glob patterns in the standard `import()` dynamic import syntax, then perform code splitting during the build.
+```ts
+// Suppose it matches:
+// - src/data/user.json
+// - src/data/product.json
+
+const data = {
+  "src/data/user.json": await import("file:///.../src/data/user.json", {
+    with: { type: "json" },
+  }),
+  "src/data/product.json": await import("file:///.../src/data/product.json", {
+    with: { type: "json" },
+  }),
+};
+```
+
+## How this differs from bundler features
+
+`globload` feels similar to bulk import features provided by frontend bundlers (e.g. Vite’s `import.meta.glob`), but the key difference is:
+
+- `import.meta.glob`: compile-time analysis and transformation; requires a bundling/build pipeline
+- `globload`: runtime parsing and loading via Node.js module hooks; no bundler required
+
+So `globload` is a better fit for pure Node.js backend projects, scripts, or any scenario where you don’t want to introduce a build step.
 
 ## Compatibility
 
-- **Node.js**: Please refer to the [`engines`](https://github.com/yingzhi0808/globload/blob/main/package.json#L46) field in `package.json` for specific declarations.
+- **Node.js**: see the `engines.node` field in `package.json` (currently `^18.19.0 || >=20.10.0`).
+
+
